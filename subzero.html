@@ -72,7 +72,6 @@ header{
 #canvas-inner{
   position:absolute;top:0;left:0;
   transform-origin:0 0;will-change:transform;
-  /* Big enough to hold nodes absolutely */
   width:1px;height:1px;overflow:visible;
 }
 #canvas-svg{
@@ -104,7 +103,6 @@ header{
 /* NODE */
 .node{
   position:absolute;
-  /* centered on x,y */
   transform:translate(-50%,-50%);
   cursor:pointer;
   user-select:none;
@@ -130,7 +128,6 @@ header{
 .node.root .node-pill{
   font-size:15px;font-weight:700;padding:10px 22px;
 }
-/* selected in build mode */
 .node.selected .node-pill{
   box-shadow:0 0 0 3px var(--accent-light),0 4px 16px rgba(37,99,235,.22);
 }
@@ -156,7 +153,6 @@ header{
   background:var(--accent-light);
   box-shadow:0 0 0 3px rgba(37,99,235,.2);
 }
-/* filled in practice */
 .node.filled .node-pill{
   background:#F0FDF4;
   border-color:#16A34A;
@@ -175,7 +171,7 @@ header{
 
 /* TOOLBAR */
 #node-toolbar{
-  position:fixed; /* fixed so no transform math headaches */
+  position:fixed;
   z-index:500;
   display:none;
   gap:3px;
@@ -370,7 +366,6 @@ header{
   </div>
 </div>
 
-<!-- Node toolbar — lives outside canvas so fixed positioning is clean -->
 <div id="node-toolbar">
   <button onclick="tbAddChild()">+ Enfant</button>
   <button onclick="tbAddSibling()">+ Frère</button>
@@ -391,13 +386,12 @@ header{
   </div>
 </div>
 
-<!-- LEVELS MODAL -->
 <div class="modal-overlay" id="levels-modal">
   <div class="modal levels-modal-inner">
     <h3>📚 Levels</h3>
     <div class="repo-config">
       <label>Repo GitHub :</label>
-      <input type="text" id="repo-input" placeholder="utilisateur/nom-repo (ex: harrylegaucher-lgtm/SubZero-Levels)"/>
+      <input type="text" id="repo-input" placeholder="utilisateur/nom-repo (ex: harrylegaucher-lgtm/Sub-Zero)"/>
       <button class="rc-btn" onclick="loadLevels()">Charger</button>
     </div>
     <div id="levels-list-wrap"><div class="levels-state">Entrez un repo pour charger les levels.</div></div>
@@ -408,41 +402,30 @@ header{
   </div>
 </div>
 
-<div id="ver">sub-zero v3 — clean</div>
+<div id="ver">sub-zero v3 — github pages</div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════════
-// CONSTANTS
-// ═══════════════════════════════════════════════════════════════════
 const BRANCH_COLORS = [
   '#2563EB','#059669','#D97706','#DC2626',
   '#7C3AED','#DB2777','#0891B2','#65A30D'
 ];
 const ROOT_COLOR = '#64748B';
-// Horizontal gap between levels, vertical gap between siblings
-const H_GAP = 200; // px between parent and children (horizontal)
-const V_GAP = 60;  // px between siblings (vertical)
+const H_GAP = 200;
+const V_GAP = 60;
 
-// ═══════════════════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════════════════
-let nodes = [];   // [{id,text,x,y,parentId}]
+let nodes = [];
 let _nid  = 1;
-let mode  = 'build'; // 'build' | 'play'
+let mode  = 'build';
 let selectedId = null;
 let editingId  = null;
-let vp = {x:0,y:0,s:1};  // viewport: translate + scale
+let vp = {x:0,y:0,s:1};
 let fbTimer = null;
 
-// Practice state
-let practiceAnswers = {}; // nodeId → correct text placed
+let practiceAnswers = {};
 let practiceScore   = 0;
 let practiceTotal   = 0;
-let selectedChip    = null; // {el, word}
+let selectedChip    = null;
 
-// ═══════════════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════════════
 const mkId    = () => 'n' + (_nid++);
 const getNode = id  => nodes.find(n=>n.id===id);
 const children= id  => nodes.filter(n=>n.parentId===id);
@@ -455,26 +438,20 @@ function descendants(id){
   return res;
 }
 
-// Color: stored on node as colorIndex, inherited from parent branch
 function nodeColor(id){
   const node=getNode(id); if(!node) return BRANCH_COLORS[0];
   if(!node.parentId) return ROOT_COLOR;
   return BRANCH_COLORS[(node.colorIndex||0)%BRANCH_COLORS.length];
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// NODE CREATION
-// ═══════════════════════════════════════════════════════════════════
 function createNode(parentId, text, x, y){
   let colorIndex=0;
   if(parentId){
     const parent=getNode(parentId);
     if(parent){
       if(!parent.parentId){
-        // Direct child of root → new branch, next color index
         colorIndex=children(parentId).length;
       } else {
-        // Any deeper node → inherit parent's colorIndex (same branch)
         colorIndex=parent.colorIndex||0;
       }
     }
@@ -483,15 +460,12 @@ function createNode(parentId, text, x, y){
   nodes.push(n); return n;
 }
 
-// Auto-layout: place a new child to the right of parent, distributed vertically
 function childPosition(parentId){
   const parent=getNode(parentId); if(!parent) return {x:0,y:0};
   const kids=children(parentId);
   const x=parent.x+H_GAP;
-  // spread vertically around parent y
   const totalSpan=(kids.length)*V_GAP;
   const startY=parent.y - totalSpan/2;
-  // next child goes at end of current list
   return {x, y:startY+kids.length*V_GAP};
 }
 
@@ -500,9 +474,6 @@ function siblingPosition(nodeId){
   return childPosition(node.parentId);
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// VIEWPORT
-// ═══════════════════════════════════════════════════════════════════
 function applyVP(){
   $('canvas-inner').style.transform=`translate(${vp.x}px,${vp.y}px) scale(${vp.s})`;
   $('zoom-level').textContent=Math.round(vp.s*100)+'%';
@@ -533,20 +504,15 @@ function centerView(){
   applyVP();
 }
 
-// Canvas world coordinates from client event
 function clientToWorld(cx,cy){
   const r=$('canvas-wrap').getBoundingClientRect();
   return {x:(cx-r.left-vp.x)/vp.s, y:(cy-r.top-vp.y)/vp.s};
 }
-// World node position → fixed screen position (for toolbar)
 function nodeToScreen(node){
   const r=$('canvas-wrap').getBoundingClientRect();
   return {x:node.x*vp.s+vp.x+r.left, y:node.y*vp.s+vp.y+r.top};
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════════════════════════════════
 function render(){
   renderEdges();
   renderNodes();
@@ -554,7 +520,6 @@ function render(){
   renderToolbar();
 }
 
-// ── Edges ──────────────────────────────────────────────────────────
 function renderEdges(){
   const svg=$('canvas-svg');
   svg.innerHTML='';
@@ -579,7 +544,6 @@ function renderEdges(){
   });
 }
 
-// ── Nodes ──────────────────────────────────────────────────────────
 function renderNodes(){
   const inner=$('canvas-inner');
   inner.querySelectorAll('.node').forEach(e=>e.remove());
@@ -587,8 +551,6 @@ function renderNodes(){
   nodes.forEach(node=>{
     const isRoot=!node.parentId;
     const col=nodeColor(node.id);
-
-    // In practice mode: non-root nodes not yet answered = blank
     const isBlank=mode==='play'&&!isRoot&&!practiceAnswers[node.id];
     const isFilled=mode==='play'&&!isRoot&&!!practiceAnswers[node.id];
 
@@ -610,7 +572,7 @@ function renderNodes(){
     if(editingId===node.id){
       const inp=document.createElement('input');
       inp.className='node-input';
-      inp.value=node.text==='Nœud'?'':node.text; // show empty if still default
+      inp.value=node.text==='Nœud'?'':node.text;
       inp.placeholder='Nœud';
       inp.style.width='90px';
       inp.addEventListener('input',()=>{
@@ -624,7 +586,6 @@ function renderNodes(){
         const node2=getNode(node.id); if(!node2) return;
         node2.text=val||'Nœud';
         editingId=null;
-        // defer render so browser finishes the blur event cleanly
         queueMicrotask(()=>render());
       });
       inp.addEventListener('keydown',e=>{
@@ -647,7 +608,6 @@ function renderNodes(){
   });
 }
 
-// ── Toolbar (fixed positioning, no transform math) ─────────────────
 function renderToolbar(){
   const tb=$('node-toolbar');
   if(!selectedId||mode!=='build'){tb.classList.remove('visible');return;}
@@ -655,36 +615,26 @@ function renderToolbar(){
   if(!node){tb.classList.remove('visible');return;}
 
   const sc=nodeToScreen(node);
-  const TOOLBAR_H=38; // approximate height of toolbar
-  const OFFSET=8;     // gap above node
-
-  // We want toolbar centered above node
+  const TOOLBAR_H=38;
+  const OFFSET=8;
   tb.style.left=sc.x+'px';
   tb.style.top =(sc.y-TOOLBAR_H-OFFSET)+'px';
   tb.style.transform='translateX(-50%)';
   tb.classList.add('visible');
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// NODE EVENTS
-// ═══════════════════════════════════════════════════════════════════
-let _drag=null; // {id,startX,startY,origX,origY,moved}
-let _lastTap={id:null,time:0}; // for double-click detection
+let _drag=null;
+let _lastTap={id:null,time:0};
 
 function attachNodeEvents(div,node){
-  // ── POINTER DOWN: start drag or selection
   div.addEventListener('pointerdown',e=>{
-    if(mode==='play'){
-      return;
-    }
+    if(mode==='play') return;
     if(editingId===node.id) return;
     e.stopPropagation();
     e.preventDefault();
 
-    // Double-click detection via timing
     const now=Date.now();
     if(_lastTap.id===node.id && now-_lastTap.time<400){
-      // Double click → edit
       _lastTap={id:null,time:0};
       _drag=null;
       editingId=node.id; selectedId=node.id;
@@ -703,7 +653,6 @@ function attachNodeEvents(div,node){
     div.setPointerCapture(e.pointerId);
   });
 
-  // ── POINTER MOVE: drag
   div.addEventListener('pointermove',e=>{
     if(!_drag||_drag.id!==node.id) return;
     const dx=(e.clientX-_drag.startX)/vp.s;
@@ -712,42 +661,36 @@ function attachNodeEvents(div,node){
     if(_drag.moved){
       node.x=_drag.origX+dx;
       node.y=_drag.origY+dy;
-      // Fast re-render during drag (skip toolbar)
       renderEdges();
       div.style.left=node.x+'px';
       div.style.top =node.y+'px';
     }
   });
 
-  // ── POINTER UP: select or end drag
   div.addEventListener('pointerup',e=>{
     if(!_drag||_drag.id!==node.id) return;
     const wasMoved=_drag.moved;
     _drag=null;
     if(!wasMoved){
-      // It's a click → select
       selectedId=(selectedId===node.id)?null:node.id;
     }
     render();
   });
 
-  // ── POINTER CANCEL
   div.addEventListener('pointercancel',()=>{
     if(_drag&&_drag.id===node.id) _drag=null;
     render();
   });
 
-  // ── CLICK in practice mode: place word on blank
   div.addEventListener('click',e=>{
     if(mode!=='play') return;
-    if(node.parentId===null) return; // root can't be filled
-    if(practiceAnswers[node.id]) return; // already filled
+    if(node.parentId===null) return;
+    if(practiceAnswers[node.id]) return;
     e.stopPropagation();
     if(!selectedChip){showFeedback('Sélectionnez un mot d\'abord.','info');return;}
     evaluatePlacement(node.id,selectedChip.word);
   });
 
-  // ── DRAG-AND-DROP from word panel
   div.addEventListener('dragover',e=>{
     if(mode!=='play'||node.parentId===null||practiceAnswers[node.id]) return;
     e.preventDefault();
@@ -765,9 +708,6 @@ function attachNodeEvents(div,node){
   });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// TOOLBAR ACTIONS
-// ═══════════════════════════════════════════════════════════════════
 function tbAddChild(){
   if(!selectedId) return;
   const pos=childPosition(selectedId);
@@ -779,7 +719,6 @@ function tbAddSibling(){
   const node=getNode(selectedId); if(!node||!node.parentId) return;
   const pos=siblingPosition(selectedId);
   const sib=createNode(node.parentId,'Nœud',pos.x,pos.y);
-  // ALWAYS copy colorIndex from the source node — siblings = same branch = same color
   sib.colorIndex=node.colorIndex||0;
   selectedId=sib.id; editingId=sib.id;
   render();
@@ -796,26 +735,20 @@ function tbDelete(){
   render();
 }
 
-// Expose for keyboard
 function addChildToSelected(){tbAddChild();}
 function deleteSelected(){tbDelete();}
 function editSelected(){tbEdit();}
 
-// ═══════════════════════════════════════════════════════════════════
-// CANVAS PAN / ZOOM EVENTS
-// ═══════════════════════════════════════════════════════════════════
 const canvasWrap=$('canvas-wrap');
 let _pan=null;
 let _pinchDist=null;
-
-// Double-click canvas to create node
 let _lastCanvasTap=0;
+
 canvasWrap.addEventListener('pointerdown',e=>{
   if(e.target.closest('.node')||e.target.closest('#node-toolbar')) return;
   _pan={sx:e.clientX,sy:e.clientY,vx:vp.x,vy:vp.y};
   if(mode==='build'){selectedId=null;render();}
 
-  // Detect double-tap on canvas
   const now=Date.now();
   if(mode==='build' && now-_lastCanvasTap<400){
     _lastCanvasTap=0;
@@ -843,14 +776,12 @@ canvasWrap.addEventListener('pointermove',e=>{
 canvasWrap.addEventListener('pointerup',()=>{_pan=null;});
 canvasWrap.addEventListener('pointerleave',()=>{_pan=null;});
 
-// Wheel zoom
 canvasWrap.addEventListener('wheel',e=>{
   e.preventDefault();
   const r=canvasWrap.getBoundingClientRect();
   zoomAt(e.clientX-r.left,e.clientY-r.top,e.deltaY<0?1.1:0.91);
 },{passive:false});
 
-// Touch pinch
 canvasWrap.addEventListener('touchstart',e=>{
   if(e.touches.length===2){
     _pan=null;
@@ -867,7 +798,6 @@ canvasWrap.addEventListener('touchmove',e=>{
 },{passive:true});
 canvasWrap.addEventListener('touchend',()=>{_pinchDist=null;},{passive:true});
 
-// Zoom controls HTML
 canvasWrap.insertAdjacentHTML('beforeend',`
   <div id="zoom-ctrl">
     <button onclick="doZoom(1.2)">+</button>
@@ -877,9 +807,6 @@ canvasWrap.insertAdjacentHTML('beforeend',`
   </div>
 `);
 
-// ═══════════════════════════════════════════════════════════════════
-// MODE SWITCH
-// ═══════════════════════════════════════════════════════════════════
 function setMode(m){
   mode=m;
   selectedId=null; editingId=null;
@@ -892,13 +819,9 @@ function setMode(m){
   else render();
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// PRACTICE MODE
-// ═══════════════════════════════════════════════════════════════════
 function initPlay(){
   practiceAnswers={};
   practiceScore=0;
-  // All non-root nodes are words to place
   const wordNodes=nodes.filter(n=>n.parentId!==null);
   practiceTotal=wordNodes.length;
   buildWordList();
@@ -913,7 +836,6 @@ function buildWordList(){
     list.innerHTML='<div style="font-size:12px;color:var(--ink3);padding:8px;">Aucun nœud enfant trouvé.<br>Créez d\'abord une carte en mode Construire.</div>';
     return;
   }
-  // Collect words still unplaced, dedupe, shuffle
   const remaining=nodes.filter(n=>n.parentId!==null&&!practiceAnswers[n.id]).map(n=>n.text);
   const unique=shuffle([...new Set(remaining)]);
   const q=($('word-search').value||'').toLowerCase();
@@ -952,30 +874,24 @@ function deselectChip(){
   $('play-hint').classList.remove('visible');
 }
 
-// ── Placement ──────────────────────────────────────────────────────
 function evaluatePlacement(nodeId,word){
   const node=getNode(nodeId);
   if(!node||!node.parentId||practiceAnswers[nodeId]) return;
 
   if(node.text===word){
-    // Correct
     practiceAnswers[nodeId]=word;
     practiceScore++;
     updateScore();
 
-    // Remove chip if no more nodes need this word
     const stillNeeded=nodes.filter(n=>n.parentId&&!practiceAnswers[n.id]&&n.text===word).length;
     if(stillNeeded===0){
       const chip=document.querySelector(`#word-list [data-word="${CSS.escape(word)}"]`);
       if(chip) chip.remove();
     }
 
-    // If the chip we just placed was selected, deselect
     if(selectedChip&&selectedChip.word===word&&stillNeeded===0) deselectChip();
-    else if(selectedChip&&selectedChip.word===word) {/* keep selected for remaining slots */}
 
     render();
-    // Pop animation
     requestAnimationFrame(()=>{
       const div=$('canvas-inner').querySelector(`.node[data-id="${nodeId}"]`);
       if(div){div.classList.add('pop-anim');setTimeout(()=>div.classList.remove('pop-anim'),400);}
@@ -995,7 +911,6 @@ function updateScore(){
   $('play-score').textContent=`${practiceScore} / ${practiceTotal}`;
 }
 
-// ─── Utility ───────────────────────────────────────────────────────
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
@@ -1007,9 +922,6 @@ function showFeedback(msg,type){
   fbTimer=setTimeout(()=>el.classList.remove('show'),2400);
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// SAVE / LOAD / NEW
-// ═══════════════════════════════════════════════════════════════════
 function exportData(){
   const blob=new Blob([JSON.stringify({nodes,_nid,vp},null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
@@ -1048,9 +960,6 @@ function doNew(){
 }
 function closeModal(id){$(id).classList.remove('open');}
 
-// ═══════════════════════════════════════════════════════════════════
-// KEYBOARD
-// ═══════════════════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   if(editingId) return;
   const ctrl=e.ctrlKey||e.metaKey;
@@ -1063,27 +972,16 @@ document.addEventListener('keydown',e=>{
   if(ctrl&&e.key==='0'){e.preventDefault();centerView();}
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════════════════
 window.addEventListener('load',()=>{
   const w=$('canvas-wrap');
   vp={x:w.clientWidth/2,y:w.clientHeight/2,s:1};
   applyVP(); render();
-  // Restore saved repo
   const saved=localStorage.getItem('subzero-repo');
   if(saved) $('repo-input').value=saved;
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// LEVELS — GitHub-based level loader
-// Same pattern as Phoenix/Classification Sandbox
-// Repo must contain a /levels/ folder with .json save files
-// ═══════════════════════════════════════════════════════════════════
-
 function openLevels(){
   $('levels-modal').classList.add('open');
-  // If repo already set, auto-load
   const repo=$('repo-input').value.trim();
   if(repo) loadLevels();
 }
@@ -1091,15 +989,12 @@ function openLevels(){
 async function loadLevels(){
   const repo=$('repo-input').value.trim();
   if(!repo){
-    setLevelsState('⚠️ Entrez un repo GitHub (ex: <strong>utilisateur/nom-repo</strong>)');
+    setLevelsState('⚠️ Entrez un repo GitHub (ex: <strong>harrylegaucher-lgtm/Sub-Zero</strong>)');
     return;
   }
-  // Persist repo choice
   localStorage.setItem('subzero-repo',repo);
-
   setLevelsSpinner();
   try{
-    // GitHub Contents API — lists files in /levels/ folder
     const apiUrl=`https://api.github.com/repos/${repo}/contents/levels`;
     const res=await fetch(apiUrl,{headers:{Accept:'application/vnd.github.v3+json'}});
     if(!res.ok){
@@ -1143,13 +1038,11 @@ function renderLevelsList(files){
 }
 
 async function loadLevelFile(file){
-  // Use the raw_url from the API response — direct file download
   const raw=file.download_url||file.raw_url;
   try{
     const res=await fetch(raw);
     if(!res.ok) throw new Error('fetch failed');
     const data=await res.json();
-    // Load it the same way as importData
     nodes=data.nodes||[]; _nid=data._nid||100;
     if(data.vp) vp=data.vp;
     selectedId=null; editingId=null;
