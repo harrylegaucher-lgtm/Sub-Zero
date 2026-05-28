@@ -386,6 +386,27 @@ header{
   </div>
 </div>
 
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <h3>💾 Exporter la carte</h3>
+    <p style="margin-bottom:10px;">Nom du fichier :</p>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:20px;">
+      <input type="text" id="export-name-input"
+        style="flex:1;height:36px;border:1.5px solid var(--border-strong);border-radius:var(--radius-sm);
+               padding:0 12px;font-size:13px;font-family:var(--font-body);background:var(--surface2);
+               color:var(--ink);outline:none;"
+        placeholder="nom-du-fichier"
+        onkeydown="if(event.key==='Enter')doExport();if(event.key==='Escape')closeModal('export-modal');"
+      />
+      <span style="font-size:12px;color:var(--ink3);white-space:nowrap;">.json</span>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('export-modal')">Annuler</button>
+      <button class="hbtn primary" style="padding:8px 18px;" onclick="doExport()">Télécharger</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="levels-modal">
   <div class="modal levels-modal-inner">
     <h3>📚 Levels</h3>
@@ -923,9 +944,24 @@ function showFeedback(msg,type){
 }
 
 function exportData(){
+  // Pre-fill: last used name → root node text → default
+  const lastName=localStorage.getItem('subzero-export-name');
+  const rootText=root()?.text;
+  const suggested=lastName||(rootText&&rootText!=='Nœud'?rootText.toLowerCase().replace(/\s+/g,'-'):'ma-carte');
+  const inp=$('export-name-input');
+  inp.value=suggested;
+  $('export-modal').classList.add('open');
+  requestAnimationFrame(()=>{inp.focus();inp.select();});
+}
+function doExport(){
+  const inp=$('export-name-input');
+  let name=(inp.value.trim()||'ma-carte').replace(/\.json$/i,'');
+  localStorage.setItem('subzero-export-name',name);
   const blob=new Blob([JSON.stringify({nodes,_nid,vp},null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='subzero-mindmap.json'; a.click();
+  a.download=name+'.json'; a.click();
+  closeModal('export-modal');
+  showFeedback(`💾 "${name}.json" exporté !`,'ok');
 }
 function triggerImport(){$('import-input').value='';$('import-input').click();}
 function importData(e){
@@ -962,9 +998,11 @@ function closeModal(id){$(id).classList.remove('open');}
 
 document.addEventListener('keydown',e=>{
   if(editingId) return;
+  if(document.activeElement===document.getElementById('export-name-input')) return;
   const ctrl=e.ctrlKey||e.metaKey;
   if((e.key==='Delete'||e.key==='Backspace')&&selectedId&&mode==='build'){e.preventDefault();deleteSelected();}
   if(e.key==='Tab'){e.preventDefault();if(selectedId&&mode==='build')addChildToSelected();}
+  if(e.key==='F1'){e.preventDefault();if(selectedId&&mode==='build')tbAddSibling();}
   if(e.key==='Escape'){selectedId=null;editingId=null;deselectChip();render();}
   if(ctrl&&e.key==='s'){e.preventDefault();exportData();}
   if(ctrl&&(e.key==='='||e.key==='+')){e.preventDefault();doZoom(1.2);}
