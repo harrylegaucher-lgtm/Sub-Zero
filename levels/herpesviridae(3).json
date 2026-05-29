@@ -1,0 +1,146 @@
+{
+  "nodes": [
+    {
+      "id": "n1",
+      "text": "Herpesviridae",
+      "x": -512.0096235209138,
+      "y": -93.68486581552112,
+      "parentId": null,
+      "colorIndex": 0
+    },
+    {
+      "id": "n2",
+      "text": "50",
+      "x": -287.3224256868075,
+      "y": -92.62627538470166,
+      "parentId": "n1",
+      "colorIndex": 0
+    },
+    {
+      "id": "n3",
+      "text": "8 = HHV",
+      "x": 405.5,
+      "y": -13.5,
+      "parentId": "n2",
+      "colorIndex": 0
+    },
+    {
+      "id": "n4",
+      "text": "HHV1 = HSV1",
+      "x": 516.5,
+      "y": -340.5,
+      "parentId": "n3",
+      "colorIndex": 0
+    },
+    {
+      "id": "n5",
+      "text": "HHV2 = HSV2",
+      "x": 594.5,
+      "y": -245.5,
+      "parentId": "n3",
+      "colorIndex": 0
+    },
+    {
+      "id": "n6",
+      "text": "VZV",
+      "x": 727.5,
+      "y": -11.5,
+      "parentId": "n3",
+      "colorIndex": 0
+    },
+    {
+      "id": "n7",
+      "text": "EBV",
+      "x": 665.5,
+      "y": 198.5,
+      "parentId": "n3",
+      "colorIndex": 0
+    },
+    {
+      "id": "n8",
+      "text": "CMV",
+      "x": 547.4423863762179,
+      "y": 331.98559659405447,
+      "parentId": "n3",
+      "colorIndex": 0
+    },
+    {
+      "id": "n10",
+      "text": "HHV6",
+      "x": -92.1038985874498,
+      "y": 209.7593435820676,
+      "parentId": "n3",
+      "colorIndex": 0
+    },
+    {
+      "id": "n11",
+      "text": "HHV7",
+      "x": -93.27429586980337,
+      "y": 341.8011946491623,
+      "parentId": "n3",
+      "colorIndex": 0
+    },
+    {
+      "id": "n12",
+      "text": "HHV8",
+      "x": -95.396114194688,
+      "y": 463.44095827575745,
+      "parentId": "n3",
+      "colorIndex": 0
+    },
+    {
+      "id": "n13",
+      "text": "*Structure",
+      "x": -290.31532578874175,
+      "y": -241.57810721933208,
+      "parentId": "n1",
+      "colorIndex": 1
+    },
+    {
+      "id": "n14",
+      "text": "sarcome de kaposi",
+      "x": -293.0834071049614,
+      "y": 459.4904228341359,
+      "parentId": "n12",
+      "colorIndex": 0
+    },
+    {
+      "id": "n15",
+      "text": "Adn bicaténaire",
+      "x": -94.26586123036326,
+      "y": -306.1035267391969,
+      "parentId": "n13",
+      "colorIndex": 1
+    },
+    {
+      "id": "n16",
+      "text": "capside icosaédrique",
+      "x": -96.89960997848618,
+      "y": -252.40029216932714,
+      "parentId": "n13",
+      "colorIndex": 1
+    },
+    {
+      "id": "n17",
+      "text": "enveloppé",
+      "x": -103.48380648766772,
+      "y": -197.3802489858181,
+      "parentId": "n13",
+      "colorIndex": 1
+    },
+    {
+      "id": "n18",
+      "text": "sarcome de kaposi",
+      "x": 747.4423863762179,
+      "y": 331.98559659405447,
+      "parentId": "n8",
+      "colorIndex": 0
+    }
+  ],
+  "_nid": 19,
+  "vp": {
+    "x": 636.0058194401767,
+    "y": 439.59817126593083,
+    "s": 0.8465107724534229
+  }
+}
