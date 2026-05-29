@@ -1,0 +1,178 @@
+{
+  "nodes": [
+    {
+      "id": "n1",
+      "text": "Listeria monocytogenes",
+      "x": -626.5000305175781,
+      "y": -20.166656494140625,
+      "parentId": null,
+      "colorIndex": 0
+    },
+    {
+      "id": "n5",
+      "text": "Formes",
+      "x": -201.00003051757812,
+      "y": -17.416656494140625,
+      "parentId": "n1",
+      "colorIndex": 0
+    },
+    {
+      "id": "n6",
+      "text": "Maman",
+      "x": -40.416717529296875,
+      "y": -265.8333282470703,
+      "parentId": "n5",
+      "colorIndex": 0
+    },
+    {
+      "id": "n7",
+      "text": "foetus",
+      "x": -36.750091552734375,
+      "y": -17.666656494140625,
+      "parentId": "n5",
+      "colorIndex": 0
+    },
+    {
+      "id": "n8",
+      "text": "adulte (immunodéprimé)",
+      "x": -45.000030517578125,
+      "y": 217.66671752929688,
+      "parentId": "n5",
+      "colorIndex": 0
+    },
+    {
+      "id": "n10",
+      "text": "syndrome pseudo grippal",
+      "x": 194.41665649414062,
+      "y": -271.3333282470703,
+      "parentId": "n6",
+      "colorIndex": 0
+    },
+    {
+      "id": "n11",
+      "text": "Septicémie - respiratoire",
+      "x": 185.24990844726562,
+      "y": -115.75,
+      "parentId": "n7",
+      "colorIndex": 0
+    },
+    {
+      "id": "n12",
+      "text": "méningite",
+      "x": 187.08328247070312,
+      "y": 15.083343505859375,
+      "parentId": "n7",
+      "colorIndex": 0
+    },
+    {
+      "id": "n13",
+      "text": "méningo-ecnéphalite",
+      "x": 275.0832824707031,
+      "y": 226.83334350585938,
+      "parentId": "n8",
+      "colorIndex": 0
+    },
+    {
+      "id": "n14",
+      "text": "structure",
+      "x": -622.751193277251,
+      "y": -594.3558107437042,
+      "parentId": "n1",
+      "colorIndex": 1
+    },
+    {
+      "id": "n15",
+      "text": "BGP non envelopés",
+      "x": -422.751193277251,
+      "y": -688.0712831226738,
+      "parentId": "n14",
+      "colorIndex": 1
+    },
+    {
+      "id": "n17",
+      "text": "diagnostique",
+      "x": -262.52714515854314,
+      "y": -524.5644045634767,
+      "parentId": "n1",
+      "colorIndex": 2
+    },
+    {
+      "id": "n18",
+      "text": "Culture cellulaire",
+      "x": -64.94068391376796,
+      "y": -653.6858554728152,
+      "parentId": "n17",
+      "colorIndex": 2
+    },
+    {
+      "id": "n19",
+      "text": "1-40°",
+      "x": 135.05931608623206,
+      "y": -653.6858554728152,
+      "parentId": "n18",
+      "colorIndex": 2
+    },
+    {
+      "id": "n20",
+      "text": "20-25",
+      "x": 335.05931608623206,
+      "y": -653.6858554728152,
+      "parentId": "n19",
+      "colorIndex": 2
+    },
+    {
+      "id": "n21",
+      "text": "Api listeria",
+      "x": -63.733834186639754,
+      "y": -585.0700991465128,
+      "parentId": "n17",
+      "colorIndex": 2
+    },
+    {
+      "id": "n22",
+      "text": "Esculine +",
+      "x": 136.26616581336026,
+      "y": -585.0700991465128,
+      "parentId": "n21",
+      "colorIndex": 2
+    },
+    {
+      "id": "n23",
+      "text": "traitement",
+      "x": -244.28187197389354,
+      "y": -392.34908355643086,
+      "parentId": "n1",
+      "colorIndex": 3
+    },
+    {
+      "id": "n24",
+      "text": "gentamicine + ampiciline",
+      "x": -44.281871973893544,
+      "y": -392.34908355643086,
+      "parentId": "n23",
+      "colorIndex": 3
+    },
+    {
+      "id": "n25",
+      "text": "résistances",
+      "x": -914.2243759846189,
+      "y": -16.386108630776633,
+      "parentId": "n1",
+      "colorIndex": 4
+    },
+    {
+      "id": "n26",
+      "text": "céphalosporine 3éme + quinolones + colistine",
+      "x": -1177.1155492762164,
+      "y": -16.386108630776633,
+      "parentId": "n25",
+      "colorIndex": 4
+    }
+  ],
+  "_nid": 27,
+  "vp": {
+    "x": 1165.8655954796,
+    "y": 507.3749522137507,
+    "s": 0.7664847068824535
+  }
+}
