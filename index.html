@@ -848,6 +848,8 @@ function initPlay(){
   buildWordList();
   updateScore();
   render();
+  // Auto-select the first chip so the player can start immediately
+  autoSelectNextChip();
 }
 
 function buildWordList(){
@@ -895,6 +897,16 @@ function deselectChip(){
   $('play-hint').classList.remove('visible');
 }
 
+function autoSelectNextChip(){
+  const chips=[...document.querySelectorAll('#word-list .word-chip')];
+  if(!chips.length) return;
+  // Pick a random one among remaining chips
+  const chip=chips[Math.floor(Math.random()*chips.length)];
+  selectChip(chip, chip.dataset.word);
+  // Scroll it into view in the panel
+  chip.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
 function evaluatePlacement(nodeId,word){
   const node=getNode(nodeId);
   if(!node||!node.parentId||practiceAnswers[nodeId]) return;
@@ -910,8 +922,6 @@ function evaluatePlacement(nodeId,word){
       if(chip) chip.remove();
     }
 
-    if(selectedChip&&selectedChip.word===word&&stillNeeded===0) deselectChip();
-
     render();
     requestAnimationFrame(()=>{
       const div=$('canvas-inner').querySelector(`.node[data-id="${nodeId}"]`);
@@ -919,9 +929,12 @@ function evaluatePlacement(nodeId,word){
     });
 
     if(practiceScore===practiceTotal){
+      deselectChip();
       setTimeout(()=>showFeedback('🎉 Parfait ! Carte complète !','ok'),200);
     } else {
       showFeedback(`✓ "${word}" est au bon endroit !`,'ok');
+      // If this word is exhausted or the same chip has no more slots, pick next
+      if(stillNeeded===0) autoSelectNextChip();
     }
   } else {
     showFeedback(`✗ "${word}" ne va pas ici.`,'err');
