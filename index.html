@@ -281,6 +281,51 @@ header{
 #ver{position:fixed;bottom:8px;left:12px;font-size:10px;color:var(--ink3);
   opacity:.3;pointer-events:none;z-index:9999;}
 
+/* DIFFICULTY SELECTOR */
+#difficulty-selector{padding:10px 14px;border-bottom:1px solid var(--border);display:none;}
+.diff-label{font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:.6px;
+  text-transform:uppercase;font-family:var(--font-title);margin-bottom:7px;}
+#diff-btns{display:flex;flex-wrap:wrap;gap:5px;}
+.diff-btn{font-family:var(--font-body);font-size:11px;font-weight:600;
+  padding:4px 10px;border-radius:20px;border:1.5px solid var(--border-strong);
+  background:var(--surface2);color:var(--ink2);cursor:pointer;transition:all .15s;}
+.diff-btn:hover{border-color:var(--accent);color:var(--accent);}
+.diff-btn.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+/* MERGE MODAL */
+.merge-modal-inner{width:min(520px,94vw);}
+.merge-dropzone{
+  border:2px dashed var(--border-strong);border-radius:var(--radius);
+  padding:28px;text-align:center;cursor:pointer;transition:all .18s;
+  background:var(--surface2);margin-bottom:14px;
+}
+.merge-dropzone:hover,.merge-dropzone.drag-over{
+  border-color:var(--accent);background:var(--accent-light);
+}
+.merge-dropzone-icon{font-size:28px;margin-bottom:8px;}
+.merge-dropzone-text{font-family:var(--font-title);font-size:13px;font-weight:600;color:var(--ink2);}
+.merge-dropzone-sub{font-size:11px;color:var(--ink3);margin-top:4px;}
+.merge-file-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;max-height:260px;overflow-y:auto;}
+.merge-file-item{
+  display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;
+  padding:10px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);
+  background:var(--surface2);
+}
+.merge-file-name{font-size:12px;font-weight:600;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.merge-file-nodes{font-size:11px;color:var(--ink3);white-space:nowrap;}
+.merge-diff-badge{
+  font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;
+  white-space:nowrap;font-family:var(--font-title);
+}
+.merge-file-input{
+  width:90px;height:26px;border:1.5px solid var(--border-strong);border-radius:var(--radius-sm);
+  padding:0 8px;font-size:11px;font-family:var(--font-body);outline:none;background:var(--surface);color:var(--ink);
+}
+.merge-file-input:focus{border-color:var(--accent);}
+.merge-empty{font-size:12px;color:var(--ink3);text-align:center;padding:16px 0;}
+.merge-footer-note{font-size:11px;color:var(--ink3);margin-bottom:12px;line-height:1.5;}
+
 /* LEVELS MODAL */
 .levels-modal-inner{width:min(460px,94vw);}
 .repo-config{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
@@ -331,7 +376,17 @@ header{
     <button class="mode-tab active" id="btn-build" onclick="setMode('build')">🔧 Construire</button>
     <button class="mode-tab" id="btn-play" onclick="setMode('play')">🎯 Mémoriser</button>
   </div>
+  <!-- Difficulty selector in header — visible in BOTH modes when difficulties are loaded -->
+  <div id="header-diff-wrap" style="display:none;align-items:center;gap:7px;background:rgba(255,255,255,.08);border-radius:8px;padding:4px 10px;">
+    <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.8px;white-space:nowrap;">DIFF</span>
+    <select id="header-diff-select"
+      onchange="selectDifficulty(parseInt(this.value))"
+      style="height:26px;padding:0 8px;border:none;border-radius:6px;font-size:11px;font-weight:600;
+             cursor:pointer;background:rgba(255,255,255,.15);color:#fff;outline:none;max-width:110px;">
+    </select>
+  </div>
   <div class="header-actions">
+    <button class="hbtn" onclick="openMergeModal()">🔀 Fusionner</button>
     <button class="hbtn" onclick="openLevels()">📚 Levels</button>
     <button class="hbtn" onclick="centerView()">⌖ Centrer</button>
     <button class="hbtn" onclick="triggerImport()">📂 Importer</button>
@@ -356,6 +411,10 @@ header{
     <div class="wp-header">
       <div class="wp-title">Mots à placer</div>
       <input class="wp-search" id="word-search" type="search" placeholder="🔍 Rechercher…" oninput="filterWords(this.value)"/>
+    </div>
+    <div id="difficulty-selector">
+      <div class="diff-label">Difficulté</div>
+      <div id="diff-btns"></div>
     </div>
     <div id="play-hint">👆 Cliquez un emplacement …</div>
     <div id="word-list"></div>
@@ -423,6 +482,36 @@ header{
   </div>
 </div>
 
+<!-- MERGE MODAL -->
+<div class="modal-overlay" id="merge-modal">
+  <div class="modal merge-modal-inner">
+    <h3>🔀 Fusionner des sauvegardes</h3>
+    <p style="font-size:12px;color:var(--ink2);margin-bottom:12px;line-height:1.6;">
+      Importez plusieurs sauvegardes du même mind map. Le programme les trie du plus simple au plus complet
+      et génère <strong>un seul fichier</strong> avec plusieurs niveaux de difficulté.
+    </p>
+    <div class="merge-dropzone" id="merge-dropzone" onclick="$('merge-file-input').click()">
+      <input type="file" id="merge-file-input" accept=".json" multiple style="display:none" onchange="handleMergeFiles(event)"/>
+      <div class="merge-dropzone-icon">📂</div>
+      <div class="merge-dropzone-text">Cliquez ou glissez vos fichiers .json ici</div>
+      <div class="merge-dropzone-sub">Plusieurs fichiers acceptés — même mind map, sauvegardes différentes</div>
+    </div>
+    <div class="merge-file-list" id="merge-file-list">
+      <div class="merge-empty">Aucun fichier chargé.</div>
+    </div>
+    <div class="merge-footer-note" id="merge-footer-note" style="display:none;">
+      ✏️ Vous pouvez renommer chaque difficulté. L'ordre est du plus petit au plus grand (nœuds).
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('merge-modal')">Annuler</button>
+      <button class="btn-cancel" id="merge-clear-btn" onclick="clearMergeFiles()" style="display:none;">🗑 Vider</button>
+      <button class="hbtn primary" id="merge-go-btn" onclick="doMerge()" style="display:none;padding:8px 18px;">
+        🔀 Fusionner et télécharger
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="ver">sub-zero v3 — github pages</div>
 
 <script>
@@ -448,6 +537,10 @@ let practiceTotal   = 0;
 let selectedChip    = null;
 let practiceQueue   = []; // ordered node ids: deepest first
 let practiceQueueIdx = 0; // current position in queue
+
+// Difficulty system
+let difficulties    = []; // [{name, nodeIds:[]}]
+let activeDiffIdx   = -1; // -1 = all nodes
 
 const mkId    = () => 'n' + (_nid++);
 const getNode = id  => nodes.find(n=>n.id===id);
@@ -549,8 +642,16 @@ function renderEdges(){
   nodes.forEach(node=>{
     if(!node.parentId) return;
     const parent=getNode(node.parentId); if(!parent) return;
+
+    // Check if node is in active difficulty
+    const inDiff=activeDiffIdx<0||!difficulties.length||
+      (difficulties[activeDiffIdx]&&difficulties[activeDiffIdx].nodeIds.includes(node.id));
+
+    // BUILD mode: skip edges to hidden nodes
+    if(mode==='build'&&!inDiff) return;
+
     const col=nodeColor(node.id);
-    const isBlank=mode==='play'&&!practiceAnswers[node.id];
+    const isBlank=mode==='play'&&inDiff&&!practiceAnswers[node.id];
     const mx=(parent.x+node.x)/2;
     const path=document.createElementNS('http://www.w3.org/2000/svg','path');
     path.setAttribute('d',`M${parent.x},${parent.y} C${mx},${parent.y} ${mx},${node.y} ${node.x},${node.y}`);
@@ -574,8 +675,17 @@ function renderNodes(){
   nodes.forEach(node=>{
     const isRoot=!node.parentId;
     const col=nodeColor(node.id);
-    const isBlank=mode==='play'&&!isRoot&&!practiceAnswers[node.id];
-    const isFilled=mode==='play'&&!isRoot&&!!practiceAnswers[node.id];
+
+    // Is this node inside the active difficulty?
+    const inDiff=isRoot||(activeDiffIdx<0||!difficulties.length||
+      (difficulties[activeDiffIdx]&&difficulties[activeDiffIdx].nodeIds.includes(node.id)));
+
+    // BUILD mode: skip (hide) nodes outside active difficulty
+    if(mode==='build'&&!inDiff) return;
+
+    // PLAY mode: blank nodes inside difficulty, show others normally
+    const isBlank=mode==='play'&&!isRoot&&inDiff&&!practiceAnswers[node.id];
+    const isFilled=mode==='play'&&!isRoot&&inDiff&&!!practiceAnswers[node.id];
 
     const div=document.createElement('div');
     let cls='node';
@@ -838,17 +948,21 @@ function setMode(m){
   $('btn-play').classList.toggle('active',m==='play');
   $('word-panel').classList.toggle('open',m==='play');
   $('node-toolbar').classList.remove('visible');
-  if(m==='play') initPlay();
+  if(m==='play'){renderDifficultySelector();initPlay();}
   else render();
 }
 
 function initPlay(){
   practiceAnswers={};
   practiceScore=0;
-  const wordNodes=nodes.filter(n=>n.parentId!==null);
+
+  // Filter nodes by active difficulty
+  const diffIds=getDiffNodeIds();
+  const wordNodes=nodes.filter(n=>n.parentId!==null&&(diffIds===null||diffIds.has(n.id)));
   practiceTotal=wordNodes.length;
+
   // Build queue: sort by depth descending (deepest leaves first), shuffle within same depth
-  practiceQueue=buildDepthQueue();
+  practiceQueue=buildDepthQueue(wordNodes.map(n=>n.id));
   practiceQueueIdx=0;
   buildWordList();
   updateScore();
@@ -856,22 +970,79 @@ function initPlay(){
   autoSelectNextChip();
 }
 
+// Returns Set of nodeIds for active difficulty, or null if all nodes
+function getDiffNodeIds(){
+  if(!difficulties.length||activeDiffIdx<0) return null;
+  const d=difficulties[activeDiffIdx];
+  return d?new Set(d.nodeIds):null;
+}
+
+// Render the difficulty selector — word panel buttons (play) + header dropdown (both modes)
+function renderDifficultySelector(){
+  const sel=$('difficulty-selector');
+  const btns=$('diff-btns');
+  const headerWrap=$('header-diff-wrap');
+  const headerSel=$('header-diff-select');
+
+  if(!difficulties.length){
+    sel.style.display='none';
+    headerWrap.style.display='none';
+    return;
+  }
+
+  // ── Word panel buttons (play mode) ──
+  sel.style.display='block';
+  btns.innerHTML='';
+  const allBtn=document.createElement('button');
+  allBtn.className='diff-btn'+(activeDiffIdx===-1?' active':'');
+  allBtn.textContent='Tout';
+  allBtn.onclick=()=>selectDifficulty(-1);
+  btns.appendChild(allBtn);
+  difficulties.forEach((d,i)=>{
+    const btn=document.createElement('button');
+    btn.className='diff-btn'+(activeDiffIdx===i?' active':'');
+    btn.textContent=d.name;
+    btn.onclick=()=>selectDifficulty(i);
+    btns.appendChild(btn);
+  });
+
+  // ── Header dropdown (always visible) ──
+  headerWrap.style.display='flex';
+  headerSel.innerHTML='';
+  const optAll=document.createElement('option');
+  optAll.value='-1'; optAll.textContent='Tout';
+  if(activeDiffIdx===-1) optAll.selected=true;
+  headerSel.appendChild(optAll);
+  difficulties.forEach((d,i)=>{
+    const opt=document.createElement('option');
+    opt.value=String(i); opt.textContent=d.name;
+    if(activeDiffIdx===i) opt.selected=true;
+    headerSel.appendChild(opt);
+  });
+}
+
+function selectDifficulty(idx){
+  activeDiffIdx=idx;
+  renderDifficultySelector();
+  if(mode==='play') initPlay();
+  else render(); // In build mode: re-render hides out-of-difficulty nodes
+}
+
 // Returns node ids sorted deepest-first, shuffled within each depth level
-function buildDepthQueue(){
-  const nonRoot=nodes.filter(n=>n.parentId!==null);
-  // Compute depth for each node
+function buildDepthQueue(nodeIds){
+  const ids=nodeIds||(nodes.filter(n=>n.parentId!==null).map(n=>n.id));
   function depth(id){
     let d=0, cur=getNode(id);
     while(cur&&cur.parentId){d++;cur=getNode(cur.parentId);}
     return d;
   }
-  const maxDepth=Math.max(...nonRoot.map(n=>depth(n.id)));
+  if(!ids.length) return [];
+  const maxDepth=Math.max(...ids.map(id=>depth(id)));
   const result=[];
-  // From deepest to shallowest (depth 1 = direct child of root = last)
   for(let d=maxDepth;d>=1;d--){
-    const tier=nonRoot.filter(n=>depth(n.id)===d);
+    const tier=ids.filter(id=>depth(id)===d);
     shuffle(tier);
-    tier.forEach(n=>result.push(n.id));
+    tier.forEach(id=>result.push(id));
   }
   return result;
 }
@@ -1002,10 +1173,11 @@ function showFeedback(msg,type){
 }
 
 function exportData(){
-  // Pre-fill: last used name → root node text → default
   const lastName=localStorage.getItem('subzero-export-name');
   const rootText=root()?.text;
-  const suggested=lastName||(rootText&&rootText!=='Nœud'?rootText.toLowerCase().replace(/\s+/g,'-'):'ma-carte');
+  // Strip any existing subzero- prefix from the suggested name to avoid double
+  const base=lastName||(rootText&&rootText!=='Nœud'?rootText.toLowerCase().replace(/\s+/g,'-'):'ma-carte');
+  const suggested=base.replace(/^subzero-/i,'');
   const inp=$('export-name-input');
   inp.value=suggested;
   $('export-modal').classList.add('open');
@@ -1013,9 +1185,13 @@ function exportData(){
 }
 function doExport(){
   const inp=$('export-name-input');
-  let name=(inp.value.trim()||'ma-carte').replace(/\.json$/i,'');
-  localStorage.setItem('subzero-export-name',name);
-  const blob=new Blob([JSON.stringify({nodes,_nid,vp},null,2)],{type:'application/json'});
+  // Always prefix with subzero- so files are distinguishable from sandbox saves
+  const raw=(inp.value.trim()||'ma-carte').replace(/\.json$/i,'').replace(/^subzero-/i,'');
+  const name='subzero-'+raw;
+  localStorage.setItem('subzero-export-name',raw);
+  const payload={nodes,_nid,vp};
+  if(difficulties.length) payload.difficulties=difficulties;
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   a.download=name+'.json'; a.click();
   closeModal('export-modal');
@@ -1030,8 +1206,10 @@ function importData(e){
       const d=JSON.parse(ev.target.result);
       nodes=d.nodes||[]; _nid=d._nid||100;
       if(d.vp) vp=d.vp;
+      difficulties=d.difficulties||[];
+      activeDiffIdx=difficulties.length>0?0:-1;
       selectedId=null; editingId=null;
-      if(mode==='play') initPlay(); else render();
+      if(mode==='play'){renderDifficultySelector();initPlay();}else render();
       showFeedback('Carte importée !','ok');
     }catch{showFeedback('Fichier invalide.','err');}
   };
@@ -1045,6 +1223,7 @@ function doNew(){
   closeModal('new-modal');
   nodes=[]; _nid=1; selectedId=null; editingId=null;
   practiceAnswers={}; practiceScore=0; practiceTotal=0;
+  difficulties=[]; activeDiffIdx=-1;
   deselectChip();
   const w=$('canvas-wrap');
   vp={x:w.clientWidth/2,y:w.clientHeight/2,s:1};
@@ -1074,8 +1253,154 @@ window.addEventListener('load',()=>{
   const w=$('canvas-wrap');
   vp={x:w.clientWidth/2,y:w.clientHeight/2,s:1};
   applyVP(); render();
+  renderDifficultySelector();
   const saved=localStorage.getItem('subzero-repo');
   if(saved) $('repo-input').value=saved;
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// DIFFICULTY MERGE SYSTEM
+// Upload N saves of the same map → get 1 file with N difficulties
+// ═══════════════════════════════════════════════════════════════════
+
+const DIFF_NAMES_DEFAULT = ['Facile','Moyen','Difficile','Expert','Légendaire'];
+const DIFF_COLORS = ['#059669','#D97706','#DC2626','#7C3AED','#0891B2'];
+
+let mergeFiles = []; // [{name, data, nodeCount}] sorted by nodeCount asc
+
+function openMergeModal(){
+  mergeFiles=[];
+  renderMergeList();
+  $('merge-modal').classList.add('open');
+}
+
+function handleMergeFiles(e){
+  const files=[...e.target.files]; if(!files.length) return;
+  loadMergeFiles(files);
+  e.target.value='';
+}
+
+function loadMergeFiles(files){
+  let loaded=0;
+  const newEntries=[];
+  files.forEach(file=>{
+    if(!file.name.endsWith('.json')) return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      try{
+        const d=JSON.parse(ev.target.result);
+        const nodeCount=(d.nodes||[]).length;
+        newEntries.push({name:file.name.replace('.json',''), data:d, nodeCount});
+      }catch{}
+      loaded++;
+      if(loaded===files.length){
+        // Merge into mergeFiles, deduplicate by name
+        newEntries.forEach(e=>{
+          if(!mergeFiles.find(x=>x.name===e.name)) mergeFiles.push(e);
+        });
+        // Sort by node count ascending
+        mergeFiles.sort((a,b)=>a.nodeCount-b.nodeCount);
+        renderMergeList();
+      }
+    };
+    r.readAsText(file);
+  });
+}
+
+function renderMergeList(){
+  const list=$('merge-file-list');
+  const goBtn=$('merge-go-btn');
+  const clearBtn=$('merge-clear-btn');
+  const note=$('merge-footer-note');
+
+  if(!mergeFiles.length){
+    list.innerHTML='<div class="merge-empty">Aucun fichier chargé — glissez vos .json ci-dessus.</div>';
+    goBtn.style.display='none'; clearBtn.style.display='none'; note.style.display='none';
+    return;
+  }
+  goBtn.style.display=''; clearBtn.style.display=''; note.style.display='';
+  list.innerHTML='';
+  mergeFiles.forEach((f,i)=>{
+    const col=DIFF_COLORS[i%DIFF_COLORS.length];
+    const defaultName=DIFF_NAMES_DEFAULT[i]||(i===0?'Facile':'Niveau '+(i+1));
+    const row=document.createElement('div'); row.className='merge-file-item';
+    row.innerHTML=`
+      <div>
+        <div class="merge-file-name" title="${f.name}.json">📄 ${f.name}.json</div>
+        <div class="merge-file-nodes">${f.nodeCount} nœuds</div>
+      </div>
+      <span class="merge-diff-badge" style="background:${col}18;border:1.5px solid ${col};color:${col};">
+        ${i===0?'🟢 Facile':i===mergeFiles.length-1?'🔴 Complet':'🟡 Intermédiaire'}
+      </span>
+      <input class="merge-file-input" type="text" id="merge-name-${i}"
+        value="${defaultName}" placeholder="Nom du niveau…"/>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function clearMergeFiles(){
+  mergeFiles=[];
+  renderMergeList();
+}
+
+function doMerge(){
+  if(mergeFiles.length<2){
+    showFeedback('Ajoutez au moins 2 fichiers pour fusionner.','err');
+    return;
+  }
+
+  // The largest file = master (most nodes = most complete)
+  const master=mergeFiles[mergeFiles.length-1].data;
+  const masterNodes=master.nodes||[];
+
+  // Build a unified node list: start from master
+  // For each smaller file, try to match its nodes by ID into the master
+  // Nodes that exist in master → their IDs are used directly
+  // This works because saves of the same map share the same IDs (cumulative saves)
+  const mergedNodes=[...masterNodes];
+
+  // Build difficulties: each file = one difficulty tier
+  const diffs=mergeFiles.map((f,i)=>{
+    const nameInput=document.getElementById('merge-name-'+i);
+    const name=nameInput?nameInput.value.trim()||(DIFF_NAMES_DEFAULT[i]||'Niveau '+(i+1)):DIFF_NAMES_DEFAULT[i]||'Niveau '+(i+1);
+    // nodeIds = non-root nodes from this file that also exist in master
+    const masterIds=new Set(masterNodes.map(n=>n.id));
+    const nodeIds=(f.data.nodes||[])
+      .filter(n=>n.parentId!==null&&masterIds.has(n.id))
+      .map(n=>n.id);
+    return {name, nodeIds};
+  });
+
+  // Get a good name for the output
+  const baseName=mergeFiles[mergeFiles.length-1].name.replace(/^subzero-/i,'')||'carte-fusionnee';
+  const outName='subzero-'+baseName+'-fusionné';
+
+  const payload={
+    nodes:mergedNodes,
+    _nid:master._nid||100,
+    vp:master.vp||{x:0,y:0,s:1},
+    difficulties:diffs
+  };
+
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=outName+'.json'; a.click();
+  closeModal('merge-modal');
+  showFeedback(`✓ Fichier fusionné avec ${diffs.length} difficultés téléchargé !`,'ok');
+}
+
+// Drag-and-drop on the merge dropzone
+window.addEventListener('load',()=>{
+  const dz=$('merge-dropzone');
+  if(!dz) return;
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+  dz.addEventListener('drop',e=>{
+    e.preventDefault(); dz.classList.remove('drag-over');
+    const files=[...e.dataTransfer.files].filter(f=>f.name.endsWith('.json'));
+    if(files.length) loadMergeFiles(files);
+  });
 });
 
 function openLevels(){
@@ -1143,9 +1468,11 @@ async function loadLevelFile(file){
     const data=await res.json();
     nodes=data.nodes||[]; _nid=data._nid||100;
     if(data.vp) vp=data.vp;
+    difficulties=data.difficulties||[];
+    activeDiffIdx=difficulties.length>0?0:-1;
     selectedId=null; editingId=null;
     closeModal('levels-modal');
-    if(mode==='play') initPlay(); else render();
+    if(mode==='play'){renderDifficultySelector();initPlay();}else render();
     centerView();
     showFeedback(`✓ "${file.name.replace('.json','')}" chargé !`,'ok');
   }catch{
