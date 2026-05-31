@@ -1,0 +1,430 @@
+{
+  "nodes": [
+    {
+      "id": "n1",
+      "text": "Antibiotiques",
+      "x": 37.166656494140625,
+      "y": 6.416656494140625,
+      "parentId": null,
+      "colorIndex": 0
+    },
+    {
+      "id": "n2",
+      "text": "B-lactamines",
+      "x": 316.4505857493979,
+      "y": -173.25,
+      "parentId": "n1",
+      "colorIndex": 0
+    },
+    {
+      "id": "n3",
+      "text": "Péni U",
+      "x": 523.9991338685751,
+      "y": -416.6768333381179,
+      "parentId": "n2",
+      "colorIndex": 0
+    },
+    {
+      "id": "n4",
+      "text": "Péni C",
+      "x": 514.1185828550447,
+      "y": -328.51388726999033,
+      "parentId": "n2",
+      "colorIndex": 0
+    },
+    {
+      "id": "n5",
+      "text": "Bacteroide Fragilis + pseudomonas , acinetobacter",
+      "x": 778.5759823807193,
+      "y": -415.7589258208594,
+      "parentId": "n3",
+      "colorIndex": 0
+    },
+    {
+      "id": "n6",
+      "text": "aminosides",
+      "x": 308.74314822794895,
+      "y": 12.712859368896874,
+      "parentId": "n1",
+      "colorIndex": 1
+    },
+    {
+      "id": "n7",
+      "text": "Péni G",
+      "x": 521.6857976069742,
+      "y": -608.427482093533,
+      "parentId": "n2",
+      "colorIndex": 0
+    },
+    {
+      "id": "n8",
+      "text": "Péni V",
+      "x": 522.0725874915328,
+      "y": -564.6618550831146,
+      "parentId": "n2",
+      "colorIndex": 0
+    },
+    {
+      "id": "n9",
+      "text": "Produits nitrés",
+      "x": 303.8266900267962,
+      "y": 347.5177959879128,
+      "parentId": "n1",
+      "colorIndex": 2
+    },
+    {
+      "id": "n10",
+      "text": "Imidazolés",
+      "x": 498.26164120307266,
+      "y": 350.8630998863151,
+      "parentId": "n9",
+      "colorIndex": 2
+    },
+    {
+      "id": "n11",
+      "text": "résistance Staph aur",
+      "x": 728.9972164609067,
+      "y": -604.6806483013706,
+      "parentId": "n7",
+      "colorIndex": 0
+    },
+    {
+      "id": "n13",
+      "text": "Péni M",
+      "x": 536.9021613945129,
+      "y": -805.266159533299,
+      "parentId": "n2",
+      "colorIndex": 0
+    },
+    {
+      "id": "n14",
+      "text": "anti staph majeur",
+      "x": 717.5126110354033,
+      "y": -816.339099940795,
+      "parentId": "n13",
+      "colorIndex": 0
+    },
+    {
+      "id": "n16",
+      "text": "Péni A",
+      "x": 533.6751141751417,
+      "y": -755.5585314534449,
+      "parentId": "n2",
+      "colorIndex": 0
+    },
+    {
+      "id": "n17",
+      "text": "Glycopeptides",
+      "x": 311.8599298251401,
+      "y": 144.0658136190886,
+      "parentId": "n1",
+      "colorIndex": 3
+    },
+    {
+      "id": "n18",
+      "text": "Vancomycine",
+      "x": 511.8599298251401,
+      "y": 144.0658136190886,
+      "parentId": "n17",
+      "colorIndex": 3
+    },
+    {
+      "id": "n19",
+      "text": "Teicoplanine",
+      "x": 511.8599298251401,
+      "y": 174.0658136190886,
+      "parentId": "n17",
+      "colorIndex": 3
+    },
+    {
+      "id": "n20",
+      "text": "dérivés de nitrofurane",
+      "x": 506.40232014165827,
+      "y": 431.6060284000159,
+      "parentId": "n9",
+      "colorIndex": 2
+    },
+    {
+      "id": "n21",
+      "text": "Anaérobies",
+      "x": 726.5935724665553,
+      "y": 350.8630998863151,
+      "parentId": "n10",
+      "colorIndex": 2
+    },
+    {
+      "id": "n22",
+      "text": "MKLS",
+      "x": 300.1252943194274,
+      "y": 594.2214886054956,
+      "parentId": "n1",
+      "colorIndex": 4
+    },
+    {
+      "id": "n23",
+      "text": "Hp",
+      "x": 723.9151741958842,
+      "y": 396.25521968200206,
+      "parentId": "n10",
+      "colorIndex": 2
+    },
+    {
+      "id": "n24",
+      "text": "Kétolides",
+      "x": 489.5669575905034,
+      "y": 609.5790693021122,
+      "parentId": "n22",
+      "colorIndex": 4
+    },
+    {
+      "id": "n25",
+      "text": "Azalides",
+      "x": 491.4866551775806,
+      "y": 664.5351379341142,
+      "parentId": "n22",
+      "colorIndex": 4
+    },
+    {
+      "id": "n26",
+      "text": "Lincosamides",
+      "x": 485.72756241634926,
+      "y": 719.4912065661164,
+      "parentId": "n22",
+      "colorIndex": 4
+    },
+    {
+      "id": "n27",
+      "text": "Synergistines",
+      "x": 489.37123107415397,
+      "y": 772.0988576538932,
+      "parentId": "n22",
+      "colorIndex": 4
+    },
+    {
+      "id": "n28",
+      "text": "*anti staph maj",
+      "x": 732.1994136953574,
+      "y": 700.5231040032559,
+      "parentId": "n26",
+      "colorIndex": 4
+    },
+    {
+      "id": "n29",
+      "text": "*anaérobies",
+      "x": 729.3541983109284,
+      "y": 745.6975860535442,
+      "parentId": "n26",
+      "colorIndex": 4
+    },
+    {
+      "id": "n31",
+      "text": "BCN- rés ampicilline : pseudomonas, acinetobacter",
+      "x": 789.1537955840439,
+      "y": -324.3016443700516,
+      "parentId": "n4",
+      "colorIndex": 0
+    },
+    {
+      "id": "n32",
+      "text": "Polypeptides",
+      "x": 321.8708880997011,
+      "y": -968.9775558857846,
+      "parentId": "n1",
+      "colorIndex": 5
+    },
+    {
+      "id": "n33",
+      "text": "Collistine",
+      "x": 486.06682345022193,
+      "y": -968.9775558857847,
+      "parentId": "n32",
+      "colorIndex": 5
+    },
+    {
+      "id": "n34",
+      "text": "résistance PPM",
+      "x": 652.7299928447844,
+      "y": -966.2533874233859,
+      "parentId": "n33",
+      "colorIndex": 5
+    },
+    {
+      "id": "n36",
+      "text": "Oxazolidinones",
+      "x": 309.00096730876226,
+      "y": 1424.1548148164568,
+      "parentId": "n1",
+      "colorIndex": 7
+    },
+    {
+      "id": "n37",
+      "text": "linézolide",
+      "x": 501.8270207368503,
+      "y": 1425.6630365811825,
+      "parentId": "n36",
+      "colorIndex": 7
+    },
+    {
+      "id": "n38",
+      "text": "Gram + only",
+      "x": 78.57211345324245,
+      "y": 1429.2829499527777,
+      "parentId": "n36",
+      "colorIndex": 7
+    },
+    {
+      "id": "n39",
+      "text": "enteroccocus résistants à la vancomycine",
+      "x": 786.6427819015406,
+      "y": 1426.550398618398,
+      "parentId": "n37",
+      "colorIndex": 7
+    },
+    {
+      "id": "n42",
+      "text": "anti staph majeurs méti-S/R",
+      "x": 295.3498615370092,
+      "y": 1155.9042908628126,
+      "parentId": "n1",
+      "colorIndex": 7
+    },
+    {
+      "id": "n43",
+      "text": "Fosfomycine",
+      "x": 504.89148290132573,
+      "y": 1055.717266537489,
+      "parentId": "n42",
+      "colorIndex": 7
+    },
+    {
+      "id": "n45",
+      "text": "acide fucidique",
+      "x": 495.3498615370092,
+      "y": 1185.9042908628126,
+      "parentId": "n42",
+      "colorIndex": 7
+    },
+    {
+      "id": "n46",
+      "text": "spectre large",
+      "x": 797.1271560897188,
+      "y": 1054.1269963101029,
+      "parentId": "n43",
+      "colorIndex": 7
+    },
+    {
+      "id": "n47",
+      "text": "spectre étroit",
+      "x": 794.7417507486397,
+      "y": 1187.4945610901987,
+      "parentId": "n45",
+      "colorIndex": 7
+    },
+    {
+      "id": "n48",
+      "text": "TOUJOURS EN ASSOCIATION",
+      "x": -11.15120588545956,
+      "y": 1153.088616881062,
+      "parentId": "n42",
+      "colorIndex": 7
+    },
+    {
+      "id": "n49",
+      "text": "BACTERIOSTATIQUE/BACTERICIDE",
+      "x": 109.2131278891444,
+      "y": -964.8886245501684,
+      "parentId": "n32",
+      "colorIndex": 5
+    },
+    {
+      "id": "n50",
+      "text": "BACTERIOSTATIQUE/BACTERICIDE",
+      "x": 801.0438201818491,
+      "y": 1235.830201099135,
+      "parentId": "n45",
+      "colorIndex": 7
+    }
+  ],
+  "_nid": 51,
+  "vp": {
+    "x": 679.194939629576,
+    "y": 389.31062821059385,
+    "s": 0.34042241947908886
+  },
+  "difficulties": [
+    {
+      "name": "Facile",
+      "nodeIds": [
+        "n2",
+        "n3",
+        "n4",
+        "n5",
+        "n6",
+        "n7",
+        "n8",
+        "n9",
+        "n10",
+        "n11",
+        "n13",
+        "n14",
+        "n16"
+      ]
+    },
+    {
+      "name": "Moyen",
+      "nodeIds": [
+        "n2",
+        "n3",
+        "n4",
+        "n5",
+        "n6",
+        "n7",
+        "n8",
+        "n9",
+        "n10",
+        "n11",
+        "n13",
+        "n14",
+        "n16",
+        "n17",
+        "n18",
+        "n19",
+        "n20",
+        "n21",
+        "n22",
+        "n23"
+      ]
+    },
+    {
+      "name": "Difficile",
+      "nodeIds": [
+        "n2",
+        "n3",
+        "n4",
+        "n5",
+        "n6",
+        "n7",
+        "n8",
+        "n9",
+        "n10",
+        "n11",
+        "n13",
+        "n14",
+        "n16",
+        "n17",
+        "n18",
+        "n19",
+        "n20",
+        "n21",
+        "n22",
+        "n23",
+        "n24",
+        "n25",
+        "n26",
+        "n27",
+        "n28",
+        "n29"
+      ]
+    }
+  ]
+}
