@@ -446,6 +446,8 @@ let practiceAnswers = {};
 let practiceScore   = 0;
 let practiceTotal   = 0;
 let selectedChip    = null;
+let practiceQueue   = []; // ordered node ids: deepest first
+let practiceQueueIdx = 0; // current position in queue
 
 const mkId    = () => 'n' + (_nid++);
 const getNode = id  => nodes.find(n=>n.id===id);
@@ -845,11 +847,33 @@ function initPlay(){
   practiceScore=0;
   const wordNodes=nodes.filter(n=>n.parentId!==null);
   practiceTotal=wordNodes.length;
+  // Build queue: sort by depth descending (deepest leaves first), shuffle within same depth
+  practiceQueue=buildDepthQueue();
+  practiceQueueIdx=0;
   buildWordList();
   updateScore();
   render();
-  // Auto-select the first chip so the player can start immediately
   autoSelectNextChip();
+}
+
+// Returns node ids sorted deepest-first, shuffled within each depth level
+function buildDepthQueue(){
+  const nonRoot=nodes.filter(n=>n.parentId!==null);
+  // Compute depth for each node
+  function depth(id){
+    let d=0, cur=getNode(id);
+    while(cur&&cur.parentId){d++;cur=getNode(cur.parentId);}
+    return d;
+  }
+  const maxDepth=Math.max(...nonRoot.map(n=>depth(n.id)));
+  const result=[];
+  // From deepest to shallowest (depth 1 = direct child of root = last)
+  for(let d=maxDepth;d>=1;d--){
+    const tier=nonRoot.filter(n=>depth(n.id)===d);
+    shuffle(tier);
+    tier.forEach(n=>result.push(n.id));
+  }
+  return result;
 }
 
 function buildWordList(){
@@ -898,13 +922,31 @@ function deselectChip(){
 }
 
 function autoSelectNextChip(){
+  // Advance queue index past already-answered nodes
+  while(practiceQueueIdx < practiceQueue.length && practiceAnswers[practiceQueue[practiceQueueIdx]]){
+    practiceQueueIdx++;
+  }
+  if(practiceQueueIdx >= practiceQueue.length) return;
+  const nodeId=practiceQueue[practiceQueueIdx];
+  const node=getNode(nodeId); if(!node) return;
+  // Find the chip in the word list matching this node's text
+  const chip=document.querySelector(`#word-list [data-word="${CSS.escape(node.text)}"]`);
+  if(chip){
+    selectChip(chip, node.text);
+    chip.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
+}
+
+// Navigate chips with arrow keys (up/down moves through word-list order)
+function navigateChip(dir){
   const chips=[...document.querySelectorAll('#word-list .word-chip')];
   if(!chips.length) return;
-  // Pick a random one among remaining chips
-  const chip=chips[Math.floor(Math.random()*chips.length)];
-  selectChip(chip, chip.dataset.word);
-  // Scroll it into view in the panel
-  chip.scrollIntoView({block:'nearest',behavior:'smooth'});
+  const curIdx=selectedChip ? chips.findIndex(c=>c===selectedChip.el) : -1;
+  let next=curIdx+dir;
+  if(next<0) next=chips.length-1;
+  if(next>=chips.length) next=0;
+  selectChip(chips[next], chips[next].dataset.word);
+  chips[next].scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 
 function evaluatePlacement(nodeId,word){
@@ -921,6 +963,9 @@ function evaluatePlacement(nodeId,word){
       const chip=document.querySelector(`#word-list [data-word="${CSS.escape(word)}"]`);
       if(chip) chip.remove();
     }
+
+    // Advance queue past this node
+    if(practiceQueue[practiceQueueIdx]===nodeId) practiceQueueIdx++;
 
     render();
     requestAnimationFrame(()=>{
@@ -1016,6 +1061,8 @@ document.addEventListener('keydown',e=>{
   if((e.key==='Delete'||e.key==='Backspace')&&selectedId&&mode==='build'){e.preventDefault();deleteSelected();}
   if(e.key==='Tab'){e.preventDefault();if(selectedId&&mode==='build')addChildToSelected();}
   if(e.key==='F1'){e.preventDefault();if(selectedId&&mode==='build')tbAddSibling();}
+  if(e.key==='ArrowDown'&&mode==='play'){e.preventDefault();navigateChip(+1);}
+  if(e.key==='ArrowUp'&&mode==='play'){e.preventDefault();navigateChip(-1);}
   if(e.key==='Escape'){selectedId=null;editingId=null;deselectChip();render();}
   if(ctrl&&e.key==='s'){e.preventDefault();exportData();}
   if(ctrl&&(e.key==='='||e.key==='+')){e.preventDefault();doZoom(1.2);}
